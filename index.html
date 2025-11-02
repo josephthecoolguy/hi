@@ -228,16 +228,21 @@
                                     </a>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Discord Profile Widget -->
-                        <div id="discord-widget" class="u0YucR_f625ca2a8c9c72965fcd sFxZy0_b7e5cf8d0fc76e9c053f" style="margin-top:15px;margin-bottom:20px">
+                            <!-- Discord Profile Widget -->
+                            <div id="discord-widget" style="margin-top:15px;width:100%;box-sizing:border-box">
                             <style>
                                 #discord-widget {
+                                    display: block !important;
+                                    visibility: visible !important;
+                                    opacity: 1 !important;
                                     background-color: rgba(25, 76, 76, 0.07);
                                     border: 2px solid rgba(25, 76, 76, 0.15);
                                     border-radius: 15px;
                                     padding: 15px;
                                     transition: all 0.3s ease;
+                                    width: 100%;
+                                    box-sizing: border-box;
+                                    min-height: 60px;
                                 }
                                 #discord-widget:hover {
                                     border-color: rgba(25, 76, 76, 0.3);
@@ -320,13 +325,13 @@
                                 }
                                 @media (max-width: 745px) {
                                     #discord-widget {
-                                        width: 95%;
+                                        width: 95% !important;
                                         box-sizing: border-box;
                                     }
                                 }
                                 @media (max-width: 400px) {
                                     #discord-widget {
-                                        width: 100%;
+                                        width: 100% !important;
                                     }
                                 }
                             </style>
@@ -336,15 +341,26 @@
                                     <span>Loading Discord profile...</span>
                                 </div>
                             </div>
+                            <!-- Fallback - always visible for testing -->
+                            <noscript>
+                                <div style="color: rgba(25, 76, 76, 0.8); padding: 10px;">
+                                    Discord Profile Widget (JavaScript required)
+                                </div>
+                            </noscript>
                             <script>
                                 (function() {
                                     const DISCORD_ID = '1397075210775040064';
                                     const widgetContent = document.getElementById('discord-widget-content');
                                     
                                     function updateDiscordProfile() {
+                                        console.log('Fetching Discord profile...');
                                         fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`)
-                                            .then(res => res.json())
+                                            .then(res => {
+                                                console.log('Response status:', res.status);
+                                                return res.json();
+                                            })
                                             .then(data => {
+                                                console.log('Discord data:', data);
                                                 if (data.success && data.data) {
                                                     const user = data.data;
                                                     const avatarUrl = user.discord_user?.avatar 
@@ -414,6 +430,7 @@
                                     setInterval(updateDiscordProfile, 10000);
                                 })();
                             </script>
+                            </div>
                         </div>
                         <div class="rlyXF0_a2d3df8100dabb56d217 oJYZnX_9067b81027f5ba6fb637 sFxZy0_b7e5cf8d0fc76e9c053f" style="bottom:27px;left:30px">
                             <script>
