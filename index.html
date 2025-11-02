@@ -228,21 +228,25 @@
                                     </a>
                                 </div>
                             </div>
-                            <!-- Discord Profile Widget -->
-                            <div id="discord-widget" style="margin-top:15px;width:100%;box-sizing:border-box">
+                        </div>
+                        <!-- Discord Profile Widget -->
+                        <div id="discord-widget" style="margin-top:15px;width:100%;box-sizing:border-box;max-width:var(--containerWidth)">
                             <style>
                                 #discord-widget {
                                     display: block !important;
                                     visibility: visible !important;
                                     opacity: 1 !important;
-                                    background-color: rgba(25, 76, 76, 0.07);
-                                    border: 2px solid rgba(25, 76, 76, 0.15);
+                                    background-color: rgba(25, 76, 76, 0.15) !important;
+                                    border: 3px solid rgba(25, 76, 76, 0.4) !important;
                                     border-radius: 15px;
                                     padding: 15px;
                                     transition: all 0.3s ease;
-                                    width: 100%;
+                                    width: 100% !important;
                                     box-sizing: border-box;
-                                    min-height: 60px;
+                                    min-height: 80px !important;
+                                    position: relative !important;
+                                    z-index: 1000 !important;
+                                    margin: 15px auto !important;
                                 }
                                 #discord-widget:hover {
                                     border-color: rgba(25, 76, 76, 0.3);
@@ -341,96 +345,107 @@
                                     <span>Loading Discord profile...</span>
                                 </div>
                             </div>
-                            <!-- Fallback - always visible for testing -->
-                            <noscript>
-                                <div style="color: rgba(25, 76, 76, 0.8); padding: 10px;">
-                                    Discord Profile Widget (JavaScript required)
-                                </div>
-                            </noscript>
+                            <!-- Test visibility marker -->
+                            <div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border:2px solid red;z-index:9999;"></div>
                             <script>
                                 (function() {
-                                    const DISCORD_ID = '1397075210775040064';
-                                    const widgetContent = document.getElementById('discord-widget-content');
-                                    
-                                    function updateDiscordProfile() {
-                                        console.log('Fetching Discord profile...');
-                                        fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`)
-                                            .then(res => {
-                                                console.log('Response status:', res.status);
-                                                return res.json();
-                                            })
-                                            .then(data => {
-                                                console.log('Discord data:', data);
-                                                if (data.success && data.data) {
-                                                    const user = data.data;
-                                                    const avatarUrl = user.discord_user?.avatar 
-                                                        ? `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${user.discord_user.avatar}.png?size=128`
-                                                        : `https://cdn.discordapp.com/embed/avatars/${(parseInt(user.discord_user?.id) || 0) % 5}.png`;
-                                                    
-                                                    const username = user.discord_user?.display_name || user.discord_user?.username || 'Unknown User';
-                                                    const status = user.discord_status || 'offline';
-                                                    
-                                                    let activityText = '';
-                                                    if (user.activities && user.activities.length > 0) {
-                                                        const activity = user.activities.find(a => a.type === 0) || user.activities[0];
-                                                        if (activity) {
-                                                            if (activity.type === 0) {
-                                                                activityText = `<strong>Playing</strong> ${activity.name}`;
-                                                                if (activity.details) {
-                                                                    activityText += ` - ${activity.details}`;
-                                                                }
-                                                            } else if (activity.type === 1) {
-                                                                activityText = `<strong>Streaming</strong> ${activity.name}`;
-                                                            } else if (activity.type === 2) {
-                                                                activityText = `<strong>Listening to</strong> ${activity.name}`;
-                                                            } else if (activity.type === 4) {
-                                                                activityText = `<strong>${activity.state || ''}</strong>`;
-                                                            }
-                                                        }
-                                                    } else {
-                                                        activityText = status === 'online' ? 'Online' : 
-                                                                     status === 'idle' ? 'Idle' :
-                                                                     status === 'dnd' ? 'Do Not Disturb' : 'Offline';
-                                                    }
-                                                    
-                                                    widgetContent.innerHTML = `
-                                                        <div class="discord-profile">
-                                                            <div class="discord-avatar">
-                                                                <img src="${avatarUrl}" alt="${username}'s avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-                                                                <div class="discord-status ${status}"></div>
-                                                            </div>
-                                                            <div class="discord-info">
-                                                                <div class="discord-username">${username}</div>
-                                                                <div class="discord-activity">${activityText}</div>
-                                                            </div>
-                                                        </div>
-                                                    `;
-                                                } else {
-                                                    widgetContent.innerHTML = `
-                                                        <div style="color: rgba(25, 76, 76, 0.6); text-align: center; padding: 10px;">
-                                                            Unable to load Discord profile
-                                                        </div>
-                                                    `;
-                                                }
-                                            })
-                                            .catch(err => {
-                                                widgetContent.innerHTML = `
-                                                    <div style="color: rgba(25, 76, 76, 0.6); text-align: center; padding: 10px;">
-                                                        Error loading Discord profile
-                                                    </div>
-                                                `;
-                                                console.error('Discord widget error:', err);
-                                            });
+                                    // Wait for DOM to be ready
+                                    if (document.readyState === 'loading') {
+                                        document.addEventListener('DOMContentLoaded', initWidget);
+                                    } else {
+                                        initWidget();
                                     }
                                     
-                                    // Initial load
-                                    updateDiscordProfile();
-                                    
-                                    // Update every 10 seconds
-                                    setInterval(updateDiscordProfile, 10000);
+                                    function initWidget() {
+                                        const DISCORD_ID = '1397075210775040064';
+                                        const widgetContent = document.getElementById('discord-widget-content');
+                                        
+                                        if (!widgetContent) {
+                                            console.error('Discord widget content element not found!');
+                                            return;
+                                        }
+                                        
+                                        console.log('Discord widget initialized');
+                                        
+                                        function updateDiscordProfile() {
+                                            console.log('Fetching Discord profile...');
+                                            fetch(`https://api.lanyard.rest/v1/users/${DISCORD_ID}`)
+                                                .then(res => {
+                                                    console.log('Response status:', res.status);
+                                                    return res.json();
+                                                })
+                                                .then(data => {
+                                                    console.log('Discord data:', data);
+                                                    if (data.success && data.data) {
+                                                        const user = data.data;
+                                                        const avatarUrl = user.discord_user?.avatar 
+                                                            ? `https://cdn.discordapp.com/avatars/${DISCORD_ID}/${user.discord_user.avatar}.png?size=128`
+                                                            : `https://cdn.discordapp.com/embed/avatars/${(parseInt(user.discord_user?.id) || 0) % 5}.png`;
+                                                        
+                                                        const username = user.discord_user?.display_name || user.discord_user?.username || 'Unknown User';
+                                                        const status = user.discord_status || 'offline';
+                                                        
+                                                        let activityText = '';
+                                                        if (user.activities && user.activities.length > 0) {
+                                                            const activity = user.activities.find(a => a.type === 0) || user.activities[0];
+                                                            if (activity) {
+                                                                if (activity.type === 0) {
+                                                                    activityText = `<strong>Playing</strong> ${activity.name}`;
+                                                                    if (activity.details) {
+                                                                        activityText += ` - ${activity.details}`;
+                                                                    }
+                                                                } else if (activity.type === 1) {
+                                                                    activityText = `<strong>Streaming</strong> ${activity.name}`;
+                                                                } else if (activity.type === 2) {
+                                                                    activityText = `<strong>Listening to</strong> ${activity.name}`;
+                                                                } else if (activity.type === 4) {
+                                                                    activityText = `<strong>${activity.state || ''}</strong>`;
+                                                                }
+                                                            }
+                                                        } else {
+                                                            activityText = status === 'online' ? 'Online' : 
+                                                                         status === 'idle' ? 'Idle' :
+                                                                         status === 'dnd' ? 'Do Not Disturb' : 'Offline';
+                                                        }
+                                                        
+                                                        widgetContent.innerHTML = `
+                                                            <div class="discord-profile">
+                                                                <div class="discord-avatar">
+                                                                    <img src="${avatarUrl}" alt="${username}'s avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                                                                    <div class="discord-status ${status}"></div>
+                                                                </div>
+                                                                <div class="discord-info">
+                                                                    <div class="discord-username">${username}</div>
+                                                                    <div class="discord-activity">${activityText}</div>
+                                                                </div>
+                                                            </div>
+                                                        `;
+                                                    } else {
+                                                        widgetContent.innerHTML = `
+                                                            <div style="color: rgba(25, 76, 76, 0.6); text-align: center; padding: 10px;">
+                                                                Unable to load Discord profile
+                                                            </div>
+                                                        `;
+                                                    }
+                                                })
+                                                .catch(err => {
+                                                    widgetContent.innerHTML = `
+                                                        <div style="color: rgba(25, 76, 76, 0.6); text-align: center; padding: 10px;">
+                                                            Error loading Discord profile
+                                                        </div>
+                                                    `;
+                                                    console.error('Discord widget error:', err);
+                                                });
+                                        }
+                                        
+                                        // Initial load
+                                        updateDiscordProfile();
+                                        
+                                        // Update every 10 seconds
+                                        setInterval(updateDiscordProfile, 10000);
+                                    }
                                 })();
                             </script>
-                            </div>
                         </div>
                         <div class="rlyXF0_a2d3df8100dabb56d217 oJYZnX_9067b81027f5ba6fb637 sFxZy0_b7e5cf8d0fc76e9c053f" style="bottom:27px;left:30px">
                             <script>
